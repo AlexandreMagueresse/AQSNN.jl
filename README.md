@@ -1,5 +1,7 @@
 # AQSNN.jl
 
+[![DOI](https://zenodo.org/badge/614422884.svg)](https://zenodo.org/badge/latestdoi/614422884)
+
 This folder contains the codes that we used in our paper "Adaptive quadratures for nonlinear approximation of low-dimensional PDEs using smooth neural networks".
 
 ## CPWLisation
