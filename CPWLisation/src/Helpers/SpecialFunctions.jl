@@ -1,3 +1,8 @@
+"""
+This function returns the real part of the dilogarithm function. The input `x`
+is first brought to [0, 1/2] by a change of variable. The dilogarithm is then
+approximated by a rational function on this interval.
+"""
 function ReLi₂(x)
   cnum = (
     0.9999999999999999502e+0,

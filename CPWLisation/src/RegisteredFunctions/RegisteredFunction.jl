@@ -1,27 +1,58 @@
 abstract type RegisteredFunction{T} end
 
-∇⁰(::RegisteredFunction, _) = @abstractmethod
+"""
+Return the value of ρ at x.
+"""
+∇⁰(ρ::RegisteredFunction, x) = @abstractmethod
 
 (ρ::RegisteredFunction)(x) = ∇⁰(ρ, x)
 
-∇¹(::RegisteredFunction, _) = @abstractmethod
+"""
+Return the value of ρ' at x.
+"""
+∇¹(ρ::RegisteredFunction, x) = @abstractmethod
 
-ϕ₋(::RegisteredFunction) = @abstractmethod
+"""
+Return the value of the tangent to ρ at -∞ at x.
+"""
+ϕ₋(ρ::RegisteredFunction) = @abstractmethod
 
-ϕ₊(::RegisteredFunction) = @abstractmethod
+"""
+Return the value of the tangent to ρ at +∞ at x.
+"""
+ϕ₊(ρ::RegisteredFunction) = @abstractmethod
 
-∫ρ(::RegisteredFunction, _, _) = @abstractmethod
+"""
+Return the integral of x ⟼ ρ(x) between x₋ and x₊.
+"""
+∫ρ(::RegisteredFunction, x₋, x₊) = @abstractmethod
 
-∫ρx(::RegisteredFunction, _, _) = @abstractmethod
+"""
+Return the integral of x ⟼ ρ(x) * x between x₋ and x₊.
+"""
+∫ρx(::RegisteredFunction, x₋, x₊) = @abstractmethod
 
-∫ρ²(::RegisteredFunction, _, _) = @abstractmethod
+"""
+Return the integral of x ⟼ ρ(x)^2 between x₋ and x₊.
+"""
+∫ρ²(::RegisteredFunction, x₋, x₊) = @abstractmethod
 
-∫ρϕ₋²(::RegisteredFunction, _) = @abstractmethod
+"""
+Return the integral of x ⟼ (ρ(x) - ϕ₋(x))^2 between -∞ and x₊, where ϕ₋ is the
+tangent to ρ at -∞.
+"""
+∫ρϕ₋²(ρ::RegisteredFunction, x₊) = @abstractmethod
 
-∫ρϕ₊²(::RegisteredFunction, _) = @abstractmethod
+"""
+Return the integral of x ⟼ (ρ(x) - ϕ₊(x))^2 between x₋ and +∞, where ϕ₊ is the
+tangent to ρ at +∞.
+"""
+∫ρϕ₊²(ρ::RegisteredFunction, x₋) = @abstractmethod
 
+"""
+Return the integral of x ⟼ (ρ(x) - a * x - b)^2 between x₋ and x₊.
+"""
 function ∫ρϕ²(ρ::RegisteredFunction, x₋, x₊, a, b)
-  # ∫(ρ(x) - (ax + b))² dx between x₋ and x₊
   ∫ = ∫ρ²(ρ, x₋, x₊)
 
   ∫ -= 2 * a * ∫ρx(ρ, x₋, x₊)

@@ -28,6 +28,11 @@ export PointValue
 export PointSlope
 export PointTangent
 
+export ∇⁰
+export ∇¹
+export ϕ₋
+export ϕ₊
+
 export cpwl_ADAM
 export cpwl_BFGS
 export tangent_ADAM
