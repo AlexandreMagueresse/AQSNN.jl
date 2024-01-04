@@ -11,19 +11,20 @@ SV3 = SVector{3,T}
 
 ε = 1.0f-4
 
+# Comment or uncomment to select shapes
 shapes = Dict(
-  "point1D" => Domain(Val(0), [SV1(1)]),
-  "point2D" => Domain(Val(0), [SV2(1, 0)]),
-  "point3D" => Domain(Val(0), [SV3(1, 0, 0)]),
-  "line1D" => Domain(Val(1), [SV1(-1), SV1(+1)]),
-  "line2D" => Domain(Val(1), [SV2(1, 0), SV2(0, 1)]),
-  "line3D" => Domain(Val(1), [SV3(1, 0, 0), SV3(0, 0, 1)]),
-  "tri2D" => Domain(Val(2), [SV2(0, 0), SV2(1, 0), SV2(0, 1)]),
-  "tri3D" => Domain(Val(2), [SV3(1, 0, 0), SV3(0, 1, 0), SV3(0, 0, 1)]),
-  "quad2D" => Domain(Val(2), [SV2(-1, -1), SV2(+1, -1), SV2(+1, +1), SV2(-1, +1)]),
-  "quad3D" => Domain(Val(2), [SV3(-1, -1, +1), SV3(+1, -1, +1), SV3(+1, +1, -1), SV3(-1, +1, -1)]),
+  # "point1D" => Domain(Val(0), [SV1(1)]),
+  # "point2D" => Domain(Val(0), [SV2(1, 0)]),
+  # "point3D" => Domain(Val(0), [SV3(1, 0, 0)]),
+  # "line1D" => Domain(Val(1), [SV1(-1), SV1(+1)]),
+  # "line2D" => Domain(Val(1), [SV2(1, 0), SV2(0, 1)]),
+  # "line3D" => Domain(Val(1), [SV3(1, 0, 0), SV3(0, 0, 1)]),
+  # "tri2D" => Domain(Val(2), [SV2(0, 0), SV2(1, 0), SV2(0, 1)]),
+  # "tri3D" => Domain(Val(2), [SV3(1, 0, 0), SV3(0, 1, 0), SV3(0, 0, 1)]),
+  # "quad2D" => Domain(Val(2), [SV2(-1, -1), SV2(+1, -1), SV2(+1, +1), SV2(-1, +1)]),
+  # "quad3D" => Domain(Val(2), [SV3(-1, -1, +1), SV3(+1, -1, +1), SV3(+1, +1, -1), SV3(-1, +1, -1)]),
   "circle2D" => RegularDomain(1.0f0, 100),
-  "ill" => Domain(Val(2), [SV2(-1, 0), SV2(-1 + ε, ε), SV2(+1, 0), SV2(-1 + ε, -ε)]),
+  # "ill" => Domain(Val(2), [SV2(-1, 0), SV2(-1 + ε, ε), SV2(+1, 0), SV2(-1 + ε, -ε)]),
   "star2D" => Domain(Val(2), [SV2(-1, -1), SV2(0, -0.5), SV2(+1, -1), SV2(0.5, 0), SV2(+1, +1), SV2(0, 0.5), SV2(-1, +1), SV2(-0.5, 0)]),
   "star3D" => Domain(Val(2), [SV3(0, 0, 1), SV3(0.4, 0.2, 0.4), SV3(1, 0, 0), SV3(0.4, 0.4, 0.2), SV3(0, 1, 0), SV3(0.2, 0.4, 0.4)]),
   "bat" => Domain(Val(2), [SV2(0, 0), SV2(-1, -1), SV2(-3, +1), SV2(-1, +1), SV2(-1, +2), SV2(0, 1), SV2(+1, +2), SV2(+1, +1), SV2(+3, +1), SV2(+1, -1)]),
@@ -32,6 +33,8 @@ shapes = Dict(
 ############
 # Geometry #
 ############
+# This illustrates the simplexification, convexification and decomposition into reference
+# elements on a few 1D, 2D and 3D shapes
 for name in sort(collect(keys(shapes)))
   Ω = shapes[name]
 
@@ -54,19 +57,20 @@ end
 ###############
 # Integration #
 ###############
+# This compares Monte-Carlo integration with our AdaptiveQuadrature
 function f(ps)
   if size(ps, 1) == 1
     X = view(ps, 1:1, :)
-    X .^ 0
+    X .^ 2
   elseif size(ps, 1) == 2
     X = view(ps, 1:1, :)
     Y = view(ps, 2:2, :)
-    X .^ 0 .* Y .^ 0
+    X .^ 1 .* Y .^ 2
   elseif size(ps, 1) == 3
     X = view(ps, 1:1, :)
     Y = view(ps, 2:2, :)
     Z = view(ps, 3:3, :)
-    X .^ 0 .* Y .^ 0 .* Z .^ 0
+    X .^ 1 .* Y .^ 2 .* Z .^ 3
   end
 end
 
@@ -88,6 +92,8 @@ end
 #################
 # Visualisation #
 #################
+# This plots a random neural network together with its associated basis functions (last
+# layer) and their restriction to the boundary, on the shapes above
 for name in sort(collect(keys(shapes)))
   Ω = shapes[name]
 
@@ -111,6 +117,8 @@ end
 #################
 # Linearisation #
 #################
+# This shows the linearisation of a random neural network defined on the shapes above
+# and compares Monte-Carlo integration with our AdaptiveQuadrature
 for name in sort(collect(keys(shapes)))
   Random.seed!(1)
   Ω = shapes[name]

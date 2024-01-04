@@ -25,7 +25,7 @@ T = Float64
 # Nmax = 10      15 s
 # Nmax = 15     100 s
 # Nmax = 20   1 500 s
-Nmax = 5
+Nmax = 15
 
 # Learning rate
 lr = 1.0e-2
@@ -209,7 +209,7 @@ if (N > 1) && (Nmax >= N)
   scatter!(all_free, ρ.(all_free), markercolor=3, markershape=:circle, label="free")
   scatter!(fixed, ρ.(fixed), markercolor=4, markershape=:rect, label="fixed")
   plot!(legend=:topleft, legendfontsize=10)
-  savefig("fig2a.pdf")
+  savefig("plots/fig2a.pdf")
 end
 
 ##############
@@ -222,4 +222,4 @@ plot!(log10.(ns_relu), -2 .* log10.(ns_relu), label="Slope -2")
 plot!(legend=:topright, legendfontsize=10)
 plot!(xlabel=L"\log\ n")
 plot!(ylabel=L"\log\ \|f - \pi_n[f]\|_{L^2(\mathbb{R})}")
-savefig("fig2b.pdf")
+savefig("plots/fig2b.pdf")
