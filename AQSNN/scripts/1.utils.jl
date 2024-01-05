@@ -251,7 +251,7 @@ function makeInterpolation(∇⁰f, ∇¹f, ∇²f, Δf)
 end
 
 function makePoissonStrong(∇⁰f, ∇¹f, ∇²f, Δf)
-  Objective(Δ, Δf, ∇⁰f)
+  Objective(AQSNN.Δ, Δf, ∇⁰f)
 end
 
 function makePoissonNitsche(∇⁰f, ∇¹f, ∇²f, Δf)

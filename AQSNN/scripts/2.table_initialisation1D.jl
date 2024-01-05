@@ -71,8 +71,8 @@ for Fname in Fnames
   dictMC = Dict()
   dictAQ = Dict()
 
-  output = joinpath("tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
-  isfile(output) && continue
+  jld_path = joinpath("data", "tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
+  isfile(jld_path) && continue
 
   ######
   # MC #
@@ -110,26 +110,34 @@ for Fname in Fnames
     dictAQ[seed] = (NΩ=nΩ, NΓ=nΓ, l2=l2, t=t)
   end
 
-  FileIO.save(output, Dict("AQ" => dictAQ, "MC" => dictMC))
+  mkpath(dirname(jld_path))
+  FileIO.save(jld_path, Dict("AQ" => dictAQ, "MC" => dictMC))
 end
 
 ###############
 # Print table #
 ###############
+tableLetter = 'a'
+
 for Fname in Fnames
   ρname = ρsfs[Fname]
-  output = joinpath("tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
-  table = FileIO.load(output)
+  jld_path = joinpath("data", "tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
+  jld = FileIO.load(jld_path)
+  txt_path = joinpath("results", "tables", "table7$(tableLetter).txt")
+  mkpath(dirname(txt_path))
+  txt = open(txt_path, "w")
 
   s = "# $(problem), $(Fname) ($(ρname)) #"
-  println("#"^length(s))
-  println(s)
-  println("#"^length(s))
+  write(txt, "#"^length(s) * "\n")
+  write(txt, s * "\n")
+  write(txt, "#"^length(s) * "\n")
+  s = @sprintf("D\t\t  P\t  O\t\t    NΩ\t    NΓ\t\tTime\t\tL2")
+  write(txt, s * "\n")
 
   ######
   # MC #
   ######
-  dicts = table["MC"]
+  dicts = jld["MC"]
   NΩ, NΓ = NΩΓs[Fname]
   NΩs = []
   NΓs = []
@@ -142,20 +150,19 @@ for Fname in Fnames
     push!(ts, dicts[seed][:t])
   end
   NΩ = trunc(Int, mean(NΩs))
-  NΓ = trunc(Int, mean(NΓs))
   l2 = mean(l2s)
   sl2 = std(l2s)
   ml2 = minimum(l2s)
   Ml2 = maximum(l2s)
   t = mean(ts)
 
-  s = @sprintf("MC\t\t%i\t%i\t%.1f\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, NΓ, t, ml2, l2, sl2, Ml2)
-  println(s)
+  s = @sprintf("1\tMC\t\t\t\t% 6i\t% 6i\t\t%.1f\t\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, 2, t, ml2, l2, sl2, Ml2)
+  write(txt, s * "\n")
 
   ######
   # AQ #
   ######
-  dicts = table["AQ"]
+  dicts = jld["AQ"]
   P, O = POs[Fname]
   NΩs = []
   NΓs = []
@@ -168,15 +175,15 @@ for Fname in Fnames
     push!(ts, dicts[seed][:t])
   end
   NΩ = trunc(Int, mean(NΩs))
-  NΓ = trunc(Int, mean(NΓs))
   l2 = mean(l2s)
   sl2 = std(l2s)
   ml2 = minimum(l2s)
   Ml2 = maximum(l2s)
   t = mean(ts)
 
-  s = @sprintf("AQ %i %i\t\t%i\t%i\t%.1f\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, NΓ, t, ml2, l2, sl2, Ml2)
-  println(s)
+  s = @sprintf("1\tAQ\t% 3i\t% 3i\t\t% 6i\t% 6i\t\t%.1f\t\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, 2, t, ml2, l2, sl2, Ml2)
+  write(txt, s * "\n")
 
-  println()
+  close(txt)
+  tableLetter += 1
 end

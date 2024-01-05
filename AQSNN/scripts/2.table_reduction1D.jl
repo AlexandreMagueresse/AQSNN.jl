@@ -68,8 +68,8 @@ for Fname in Fnames
   dictMC = Dict()
   dictAQ = Dict()
 
-  output = joinpath("tables", "reduction_$(problem)_$(Fname)_$(Ωname).jld2")
-  isfile(output) && continue
+  jld_path = joinpath("data", "tables", "reduction_$(problem)_$(Fname)_$(Ωname).jld2")
+  isfile(jld_path) && continue
 
   ######
   # MC #
@@ -107,46 +107,55 @@ for Fname in Fnames
     end
   end
 
-  FileIO.save(output, Dict("AQ" => dictAQ, "MC" => dictMC))
+  mkpath(dirname(jld_path))
+  FileIO.save(jld_path, Dict("AQ" => dictAQ, "MC" => dictMC))
 end
 
 ###############
 # Print table #
 ###############
+tableLetter = 'a'
+
 for Fname in Fnames
   ρname = ρsfs[Fname]
-  output = joinpath("tables", "reduction_$(problem)_$(Fname)_$(Ωname).jld2")
-  table = FileIO.load(output)
+  jld_path = joinpath("data", "tables", "reduction_$(problem)_$(Fname)_$(Ωname).jld2")
+  jld = FileIO.load(jld_path)
+  txt_path = joinpath("results", "tables", "table8$(tableLetter).txt")
+  mkpath(dirname(txt_path))
+  txt = open(txt_path, "w")
 
   s = "# $(problem), $(Fname) ($(ρname)) #"
-  println("#"^length(s))
-  println(s)
-  println("#"^length(s))
+  write(txt, "#"^length(s) * "\n")
+  write(txt, s * "\n")
+  write(txt, "#"^length(s) * "\n")
+  s = @sprintf("D\t\t  P\t  O\t\t    NΩ\t    NΓ\t\tL2")
+  write(txt, s * "\n")
 
   ######
   # MC #
   ######
-  dicts = table["MC"]
+  dicts = jld["MC"]
   for (NΩ, NΓ) in sort(collect(keys(dicts)))
     dict = dicts[(NΩ, NΓ)]
     l2 = dict.l2
-    s = @sprintf("MC\t\t%i\t%.2E", NΩ, l2)
-    println(s)
+    s = @sprintf("1\tMC\t\t\t\t% 6i\t% 6i\t\t%.2E", NΩ, 2, l2)
+    write(txt, s * "\n")
   end
 
   ######
   # AQ #
   ######
-  dicts = table["AQ"]
+  dicts = jld["AQ"]
   for (P, O) in sort(collect(keys(dicts)))
     dict = dicts[(P, O)]
     for α in αs
       NΩ = dict[α].NΩ
       l2 = dict[α].l2
-      s = @sprintf("AQ %i %i\t\t%i\t%.2E", P, O, NΩ, l2)
-      println(s)
+      s = @sprintf("1\tAQ\t% 3i\t% 3i\t\t% 6i\t% 6i\t\t%.2E", P, O, NΩ, 2, l2)
+      write(txt, s * "\n")
     end
   end
 
-  println()
+  close(txt)
+  tableLetter += 1
 end

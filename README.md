@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/614422884.svg)](https://zenodo.org/badge/latestdoi/614422884)
 
-This folder contains the codes that we used in our paper "Adaptive quadratures for nonlinear approximation of low-dimensional PDEs using smooth neural networks".
+This repository contains the codes that we used in our paper "Adaptive quadratures for nonlinear approximation of low-dimensional PDEs using smooth neural networks".
 
 ## CPWLisation
 
@@ -59,13 +59,14 @@ include("AQSNN/scripts/2.table_initialisation2D.jl")
 include("AQSNN/scripts/2.table_reduction1D.jl")
 include("AQSNN/scripts/2.table_reduction2D.jl")
 ```
-This corresponds to Tables 2, 3, 4, 5, 6 (a-b), 7 (a-b) and 8 (a-b) of the article, in that order.
+This will create `table(2-5).txt` and `table(6-8)(a-b).txt` in `tables/`.
 
 #### Figures
 To reproduce the figures of the article, run
 ```
+include("AQSNN/scripts/3.activations.jl")
 include("AQSNN/scripts/3.comparison_1D.jl")
 include("AQSNN/scripts/3.comparison_2D.jl")
 include("AQSNN/scripts/3.mesh_2D.jl")
 ```
-This will create `fig(1, 4-7)(a-c).pdf`, `fig(8-9, 11).vtu` and `fig10(a-b).pdf` in `plots/`. We have attached `fig(8-9, 11).pvsm` to obtain the same style in Paraview for figures 8, 9 and 11. This will also create `cpwlisation_L∞.pdf` and `integration.pdf`, that we have not included in our paper.
+This will create `fig(1, 4-7)(a-c).pdf`, `fig(8-9, 11).vtu` and `fig10(a-b).pdf` in `plots/`. We have attached `fig(8-9, 11).pvsm` to obtain the same style in Paraview for figures 8, 9 and 11. The figures (4-7)c have not been included in our article. In Paraview, simply open `fig(8-9, 11).vtu` and load the corresponding `fig(8-9, 11).pvsm`.

@@ -1,0 +1,2 @@
+Number of integration points (NΩ): 4062
+Number of regions: 294

@@ -69,8 +69,8 @@ for problem in problems
     dictMC = Dict()
     dictAQ = Dict()
 
-    output = joinpath("tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
-    isfile(output) && continue
+    jld_path = joinpath("data", "tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
+    isfile(jld_path) && continue
 
     for η in ηs
       ######
@@ -115,56 +115,66 @@ for problem in problems
       end
     end
 
-    FileIO.save(output, Dict("AQ" => dictAQ, "MC" => dictMC))
+    mkpath(dirname(jld_path))
+    FileIO.save(jld_path, Dict("AQ" => dictAQ, "MC" => dictMC))
   end
 end
 
 ###############
 # Print table #
 ###############
+tableNumber = 2
+
 for problem in problems
   for Fname in Fnames
     ρname = ρsfs[Fname]
-    output = joinpath("tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
-    table = FileIO.load(output)
+    jld_path = joinpath("data", "tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
+    jld = FileIO.load(jld_path)
+    txt_path = joinpath("results", "tables", "table$(tableNumber).txt")
+    mkpath(dirname(txt_path))
+    txt = open(txt_path, "w")
 
     s = "# $(problem), $(Fname) ($(ρname)) #"
-    println("#"^length(s))
-    println(s)
-    println("#"^length(s))
+    write(txt, "#"^length(s) * "\n")
+    write(txt, s * "\n")
+    write(txt, "#"^length(s) * "\n")
 
     for η in ηs
-      println("-"^10)
-      println(η)
-      println("-"^10)
-      s = @sprintf("\t\t\t%i\t\t%i\t\t%i\t\t%i\t\t%i\t\t%i", νs...)
-      println(s)
+      write(txt, "-"^10 * "\n")
+      write(txt, "$(η)\n")
+      write(txt, "-"^10 * "\n")
+      s = @sprintf("\t  P\t  O\t\t  NΩ\t\tL2")
+      write(txt, s * "\n")
+      s = @sprintf("\t\t\t\t\t\t\t% 8i\t% 8i\t% 8i\t% 8i\t% 8i\t% 8i", νs...)
+      write(txt, s * "\n")
 
       ######
       # MC #
       ######
-      dicts = table["MC"][η]
+      dicts = jld["MC"][η]
       for (NΩ, NΓ) in sort(collect(keys(dicts)))
         dict = dicts[(NΩ, NΓ)]
         NΩ = trunc(Int, mean(dict[ν].NΩ for ν in νs))
         l2s = [dict[ν].l2 for ν in νs]
-        s = @sprintf("MC\t\t%i\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, l2s...)
-        println(s)
+        s = @sprintf("MC\t\t\t\t% 4i\t\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, l2s...)
+        write(txt, s * "\n")
       end
 
       ######
       # AQ #
       ######
-      dicts = table["AQ"][η]
+      dicts = jld["AQ"][η]
       for (P, O) in sort(collect(keys(dicts)))
         dict = dicts[(P, O)]
         NΩ = trunc(Int, mean(dict[ν].NΩ for ν in νs))
         l2s = [dict[ν].l2 for ν in νs]
-        s = @sprintf("AQ %i %i\t\t%i\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, l2s...)
-        println(s)
+        s = @sprintf("AQ\t% 3i\t% 3i\t\t% 4i\t\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, l2s...)
+        write(txt, s * "\n")
       end
     end
 
-    println()
+    write(txt, "\n")
+    close(txt)
+    tableNumber += 1
   end
 end

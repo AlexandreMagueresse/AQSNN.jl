@@ -91,18 +91,18 @@ function comparison1d(name, mode, problem, Ωname, Fname, ρname, A, η, ν, NE,
 
   if mode == "l2"
     Plots.plot!(xlabel="Epoch", ylabel=L"\log \ \|\!\!\|u - \hat{u}\,\|\!\!\|_{L^2(\Omega)}")
-    display(Plots.plot!(legend=:topright))
-    Plots.savefig("plots/$(name).pdf")
+    Plots.plot!(legend=:topright)
   elseif mode == "abs"
     Plots.plot!(xlabel="X", ylabel=L"\|u - \hat{u}\,\|")
-    display(Plots.plot!(legend=:topright))
-    Plots.savefig("plots/$(name).pdf")
+    Plots.plot!(legend=:topright)
   elseif mode == "rel"
     Plots.plot!(X[1, :], F[1, :], label="true")
     Plots.plot!(xlabel="X", ylabel=L"u")
-    display(Plots.plot!(legend=:topright))
-    Plots.savefig("plots/$(name).pdf")
+    Plots.plot!(legend=:topright)
   end
+  plot_path = joinpath("results", "figures", name * ".pdf")
+  mkpath(dirname(plot_path))
+  Plots.savefig(plot_path)
 end
 
 ########

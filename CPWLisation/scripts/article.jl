@@ -25,7 +25,7 @@ T = Float64
 # Nmax = 10      15 s
 # Nmax = 15     100 s
 # Nmax = 20   1 500 s
-Nmax = 15
+Nmax = 5
 
 # Learning rate
 lr = 1.0e-2
@@ -48,7 +48,7 @@ lr = 1.0e-2
 # number of epochs provided below for N > 18, the norm of the gradient is still > ε.
 
 # Using the notations of the article, we take ε = 0.1, meaning that ρ(0) = 0.1.
-ρ = ReLU(T(0.1))
+ρ = CPWLisation.ReLU(T(0.1))
 bc₋ = Asymptote()
 bc₊ = PointValue(T(0), T(ρ(0)))
 errs_relu = Vector{Float64}()
@@ -95,7 +95,7 @@ pushfirst!(ns_relu, 2)
 # fast because the decay rate of the difference between tanh and its slant asymptotes
 # is exponential (-8 / exp(2x)).
 
-ρ = Tanh{T}()
+ρ = CPWLisation.Tanh{T}()
 bc₋ = PointValue(T(0), T(ρ(0)))
 bc₊ = Asymptote()
 errs_tanh = Vector{Float64}()
@@ -129,7 +129,7 @@ ns_tanh = 3:2:(2*length(errs_tanh)+1)
 # Figure 2.a #
 ##############
 N = 3
-ρ = Tanh{T}()
+ρ = CPWLisation.Tanh{T}()
 # ρ = ReLU(T(0.1))
 xmax = 5
 
@@ -139,7 +139,7 @@ if (N > 1) && (Nmax >= N)
   xmax = max(all_free[end] + 1, xmax)
   xmin = -xmax
   abscissa = [-reverse(free)..., free...]
-  if ρ isa Tanh
+  if ρ isa CPWLisation.Tanh
     name = L"\operatorname{\tanh}"
     fixed = T[xmin, 0, xmax]
     pushfirst!(abscissa, T(Inf))
@@ -159,7 +159,7 @@ if (N > 1) && (Nmax >= N)
   # π[ρ]
   a₀, b₀ = ϕ₋(ρ)
   ξ₊ = abscissa[2]
-  a₊, b₊ = ∇¹(ρ, ξ₊), ∇⁰(ρ, ξ₊) - ξ₊ * ∇¹(ρ, ξ₊)
+  a₊, b₊ = CPWLisation.∇¹(ρ, ξ₊), CPWLisation.∇⁰(ρ, ξ₊) - ξ₊ * CPWLisation.∇¹(ρ, ξ₊)
   x₋ = xmin
   x₊ = (b₊ - b₀) / (a₀ - a₊)
   xs = x₋:0.01:x₊
@@ -170,17 +170,17 @@ if (N > 1) && (Nmax >= N)
     if !isfinite(ξ₋)
       a₋, b₋ = ϕ₋(ρ)
     else
-      a₋, b₋ = ∇¹(ρ, ξ₋), ∇⁰(ρ, ξ₋) - ξ₋ * ∇¹(ρ, ξ₋)
+      a₋, b₋ = CPWLisation.∇¹(ρ, ξ₋), CPWLisation.∇⁰(ρ, ξ₋) - ξ₋ * CPWLisation.∇¹(ρ, ξ₋)
     end
 
     ξ₀ = abscissa[n]
-    a₀, b₀ = ∇¹(ρ, ξ₀), ∇⁰(ρ, ξ₀) - ξ₀ * ∇¹(ρ, ξ₀)
+    a₀, b₀ = CPWLisation.∇¹(ρ, ξ₀), CPWLisation.∇⁰(ρ, ξ₀) - ξ₀ * CPWLisation.∇¹(ρ, ξ₀)
 
     ξ₊ = abscissa[n+1]
     if !isfinite(ξ₊)
       a₊, b₊ = ϕ₊(ρ)
     else
-      a₊, b₊ = ∇¹(ρ, ξ₊), ∇⁰(ρ, ξ₊) - ξ₊ * ∇¹(ρ, ξ₊)
+      a₊, b₊ = CPWLisation.∇¹(ρ, ξ₊), CPWLisation.∇⁰(ρ, ξ₊) - ξ₊ * CPWLisation.∇¹(ρ, ξ₊)
     end
 
     x₋ = max((b₀ - b₋) / (a₋ - a₀), xmin)
@@ -191,14 +191,14 @@ if (N > 1) && (Nmax >= N)
   end
 
   ξ₋ = abscissa[end-1]
-  a₋, b₋ = ∇¹(ρ, ξ₋), ∇⁰(ρ, ξ₋) - ξ₋ * ∇¹(ρ, ξ₋)
+  a₋, b₋ = CPWLisation.∇¹(ρ, ξ₋), CPWLisation.∇⁰(ρ, ξ₋) - ξ₋ * CPWLisation.∇¹(ρ, ξ₋)
   a₀, b₀ = ϕ₊(ρ)
   x₋ = (b₀ - b₋) / (a₋ - a₀)
   x₊ = xmax
   xs = x₋:0.01:x₊
   plot!(xs, a₀ .* xs .+ b₀, color=2, label="")
 
-  if ρ isa Tanh
+  if ρ isa CPWLisation.Tanh
     n = 2 * (N - 1) + 3
   else
     n = 2 * (N - 1) + 2
@@ -209,7 +209,10 @@ if (N > 1) && (Nmax >= N)
   scatter!(all_free, ρ.(all_free), markercolor=3, markershape=:circle, label="free")
   scatter!(fixed, ρ.(fixed), markercolor=4, markershape=:rect, label="fixed")
   plot!(legend=:topleft, legendfontsize=10)
-  savefig("plots/fig2a.pdf")
+
+  plot_path = joinpath("results", "figures", "fig2a.pdf")
+  mkpath(dirname(plot_path))
+  savefig(plot_path)
 end
 
 ##############
@@ -222,4 +225,7 @@ plot!(log10.(ns_relu), -2 .* log10.(ns_relu), label="Slope -2")
 plot!(legend=:topright, legendfontsize=10)
 plot!(xlabel=L"\log\ n")
 plot!(ylabel=L"\log\ \|f - \pi_n[f]\|_{L^2(\mathbb{R})}")
-savefig("plots/fig2b.pdf")
+
+plot_path = joinpath("results", "figures", "fig2b.pdf")
+mkpath(dirname(plot_path))
+savefig(plot_path)

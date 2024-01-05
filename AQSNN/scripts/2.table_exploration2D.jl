@@ -71,8 +71,8 @@ for Fname in Fnames
   dictMC = Dict()
   dictAQ = Dict()
 
-  output = joinpath("tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
-  isfile(output) && continue
+  jld_path = joinpath("data", "tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
+  isfile(jld_path) && continue
 
   ######
   # MC #
@@ -106,47 +106,57 @@ for Fname in Fnames
     dictAQ[(P, O)] = (NΩ=nΩ, NΓ=nΓ, l2=l2)
   end
 
-  FileIO.save(output, Dict("AQ" => dictAQ, "MC" => dictMC))
+  mkpath(dirname(jld_path))
+  FileIO.save(jld_path, Dict("AQ" => dictAQ, "MC" => dictMC))
 end
 
 ###############
 # Print table #
 ###############
+tableLetter = 'a'
+
 for Fname in Fnames
   ρname = ρsfs[Fname]
-  output = joinpath("tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
-  table = FileIO.load(output)
+  jld_path = joinpath("data", "tables", "exploration_$(problem)_$(Fname)_$(Ωname).jld2")
+  jld = FileIO.load(jld_path)
+  txt_path = joinpath("results", "tables", "table6$(tableLetter).txt")
+  mkpath(dirname(txt_path))
+  txt = open(txt_path, "w")
 
   s = "# $(problem), $(Fname) ($(ρname)) #"
-  println("#"^length(s))
-  println(s)
-  println("#"^length(s))
+  write(txt, "#"^length(s) * "\n")
+  write(txt, s * "\n")
+  write(txt, "#"^length(s) * "\n")
+  s = @sprintf("\tP\tO\t    NΩ\t    NΓ\t\tL2")
+  write(txt, s * "\n")
 
   ######
   # MC #
   ######
-  dicts = table["MC"]
+  dicts = jld["MC"]
   for (NΩ, NΓ) in sort(collect(keys(dicts)))
     dict = dicts[(NΩ, NΓ)]
     NΩ = trunc(Int, dict.NΩ)
     NΓ = trunc(Int, dict.NΓ)
     l2 = dict.l2
-    s = @sprintf("MC\t\t%i %i\t%.2E", NΩ, NΓ, l2)
-    println(s)
+    s = @sprintf("MC\t\t\t% 6i\t% 6i\t\t%.2E", NΩ, NΓ, l2)
+    write(txt, s * "\n")
   end
 
   ######
   # AQ #
   ######
-  dicts = table["AQ"]
+  dicts = jld["AQ"]
   for (P, O) in sort(collect(keys(dicts)))
     dict = dicts[(P, O)]
     NΩ = trunc(Int, dict.NΩ)
     NΓ = trunc(Int, dict.NΓ)
     l2 = dict.l2
-    s = @sprintf("AQ %i %i\t\t%i %i\t%.2E", P, O, NΩ, NΓ, l2)
-    println(s)
+    s = @sprintf("AQ\t%i\t%i\t% 6i\t% 6i\t\t%.2E", P, O, NΩ, NΓ, l2)
+    write(txt, s * "\n")
   end
 
-  println()
+  write(txt, "\n")
+  close(txt)
+  tableLetter += 1
 end

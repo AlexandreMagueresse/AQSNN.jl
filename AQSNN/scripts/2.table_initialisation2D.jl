@@ -69,8 +69,8 @@ for Fname in Fnames
   dictMC = Dict()
   dictAQ = Dict()
 
-  output = joinpath("tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
-  isfile(output) && continue
+  jld_path = joinpath("data", "tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
+  isfile(jld_path) && continue
 
   ######
   # MC #
@@ -108,26 +108,29 @@ for Fname in Fnames
     dictAQ[seed] = (NΩ=nΩ, NΓ=nΓ, l2=l2, t=t)
   end
 
-  FileIO.save(output, Dict("AQ" => dictAQ, "MC" => dictMC))
+  mkpath(dirname(jld_path))
+  FileIO.save(jld_path, Dict("AQ" => dictAQ, "MC" => dictMC))
 end
 
 ###############
 # Print table #
 ###############
+tableLetter = 'a'
+
 for Fname in Fnames
   ρname = ρsfs[Fname]
-  output = joinpath("tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
-  table = FileIO.load(output)
+  jld_path = joinpath("data", "tables", "initialisation_$(problem)_$(Fname)_$(Ωname).jld2")
+  jld = FileIO.load(jld_path)
+  txt_path = joinpath("results", "tables", "table7$(tableLetter).txt")
+  !isfile(txt_path) && throw("Please run 2.table_initialisation1D.jl first")
+  txt = open(txt_path, "a")
 
-  s = "# $(problem), $(Fname) ($(ρname)) #"
-  println("#"^length(s))
-  println(s)
-  println("#"^length(s))
+  write(txt, "-"^96 * "\n")
 
   ######
   # MC #
   ######
-  dicts = table["MC"]
+  dicts = jld["MC"]
   NΩ, NΓ = NΩΓs[Fname]
   NΩs = []
   NΓs = []
@@ -147,13 +150,13 @@ for Fname in Fnames
   Ml2 = maximum(l2s)
   t = mean(ts)
 
-  s = @sprintf("MC\t\t%i\t%i\t%.1f\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, NΓ, t, ml2, l2, sl2, Ml2)
-  println(s)
+  s = @sprintf("2\tMC\t\t\t\t% 6i\t% 6i\t\t%.1f\t\t%.2E\t%.2E\t%.2E\t%.2E", NΩ, NΓ, t, ml2, l2, sl2, Ml2)
+  write(txt, s * "\n")
 
   ######
   # AQ #
   ######
-  dicts = table["AQ"]
+  dicts = jld["AQ"]
   P, O = POs[Fname]
   NΩs = []
   NΓs = []
@@ -173,8 +176,10 @@ for Fname in Fnames
   Ml2 = maximum(l2s)
   t = mean(ts)
 
-  s = @sprintf("AQ %i %i\t\t%i\t%i\t%.1f\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, NΓ, t, ml2, l2, sl2, Ml2)
-  println(s)
+  s = @sprintf("2\tAQ\t% 3i\t% 3i\t\t% 6i\t% 6i\t\t%.1f\t\t%.2E\t%.2E\t%.2E\t%.2E", P, O, NΩ, NΓ, t, ml2, l2, sl2, Ml2)
+  write(txt, s * "\n")
 
-  println()
+  write(txt, "\n")
+  close(txt)
+  tableLetter += 1
 end

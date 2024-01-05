@@ -99,12 +99,17 @@ function comparison2d(name, problem, Ωname, Fname, ρname, A, η, ν, NE, γ, �
   uuMC(x) = uMC([x[1]; x[2]])[1]
   eMC = uh - uuMC
   l2MC = sqrt(sum(∫(eMC * eMC) * dΩexp)) / ∫ex
-  println("MC\t$(l2MC)")
 
   uuAQ(x) = uAQ([x[1]; x[2]])[1]
   eAQ = uh - uuAQ
   l2AQ = sqrt(sum(∫(eAQ * eAQ) * dΩexp)) / ∫ex
-  println("AQ\t$(l2AQ)")
+
+  txt_path = joinpath("results", "figures", name * ".txt")
+  mkpath(dirname(txt_path))
+  txt = open(txt_path, "w")
+  write(txt, "MC\t$(l2MC)\n")
+  write(txt, "AQ\t$(l2AQ)\n")
+  close(txt)
 
   ########
   # Save #
@@ -118,7 +123,9 @@ function comparison2d(name, problem, Ωname, Fname, ρname, A, η, ν, NE, γ, �
   end
   cells = [MeshCell(VTKCellTypes.VTK_TRIANGLE, ids) for ids in model.grid.cell_node_ids]
 
-  vtk_grid(joinpath("plots", name), points, cells) do vtk
+  vtk_path = joinpath("results", "figures", name)
+  mkpath(dirname(vtk_path))
+  vtk_grid(vtk_path, points, cells) do vtk
     vtk["FEM"] = evaluate(uh, [Gridap.Point(points[1, i], points[2, i]) for i in 1:npoints])
     vtk["MC"] = uMC(points)[1, :]
     vtk["AQ"] = uAQ(points)[1, :]
@@ -156,6 +163,9 @@ O = 5
 δ = 3
 
 comparison2d("fig8", problem, Ωname, Fname, ρname, A, η, ν, NE, γ, β, seed, NΩ, NΓ, P, O, α, δ)
+src_path = joinpath("data", "pvsm", "fig8.pvsm")
+dst_path = joinpath("results", "figures", "fig8.pvsm")
+cp(src_path, dst_path, force=true)
 
 ########
 # Fig9 #
@@ -188,6 +198,9 @@ O = 5
 δ = 3
 
 comparison2d("fig9", problem, Ωname, Fname, ρname, A, η, ν, NE, γ, β, seed, NΩ, NΓ, P, O, α, δ)
+src_path = joinpath("data", "pvsm", "fig9.pvsm")
+dst_path = joinpath("results", "figures", "fig9.pvsm")
+cp(src_path, dst_path, force=true)
 
 #########
 # Fig11 #
@@ -220,3 +233,6 @@ O = 2
 δ = 3
 
 comparison2d("fig11", problem, Ωname, Fname, ρname, A, η, ν, NE, γ, β, seed, NΩ, NΓ, P, O, α, δ)
+src_path = joinpath("data", "pvsm", "fig11.pvsm")
+dst_path = joinpath("results", "figures", "fig11.pvsm")
+cp(src_path, dst_path, force=true)

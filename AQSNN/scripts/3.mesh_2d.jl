@@ -73,13 +73,18 @@ for (l, α) in (("a", 0.0f0), ("b", 0.25f0))
 
   # Collapse + simplexify
   dΩ = AdaptiveQuadrature(u, Ωlin, O, α, false)
-  println(length(dΩ.points))
 
   # Only collapse
   if iszero(α)
     collapse!(Ωlin, α)
   end
-  println(length(Ωlin))
+
+  txt_path = joinpath("results", "figures", "fig10$(l).txt")
+  mkpath(dirname(txt_path))
+  txt = open(txt_path, "w")
+  write(txt, "Number of integration points (NΩ): $(length(dΩ.points))\n")
+  write(txt, "Number of regions: $(length(Ωlin))\n")
+  close(txt)
 
   Plots.plot(layout=(1, 1))
   for cycle in Ωlin.cycles
@@ -90,5 +95,7 @@ for (l, α) in (("a", 0.0f0), ("b", 0.25f0))
     end
   end
   Plots.plot!(legend=false)
-  Plots.savefig("plots/fig10$(l).pdf")
+  plot_path = joinpath("results", "figures", "fig10$(l).pdf")
+  mkpath(dirname(plot_path))
+  Plots.savefig(plot_path)
 end
