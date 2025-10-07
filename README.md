@@ -70,3 +70,6 @@ include("AQSNN/scripts/3.comparison_2D.jl")
 include("AQSNN/scripts/3.mesh_2D.jl")
 ```
 This will create `fig(1, 4-7)(a-c).pdf`, `fig(8-9, 11).vtu` and `fig10(a-b).pdf` in `plots/`. We have attached `fig(8-9, 11).pvsm` to obtain the same style in Paraview for figures 8, 9 and 11. The figures (4-7)c have not been included in our article. In Paraview, simply open `fig(8-9, 11).vtu` and load the corresponding `fig(8-9, 11).pvsm`.
+
+#### Other tables and figures
+Figure 3 and Table 1 were produced manually.

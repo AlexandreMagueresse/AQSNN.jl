@@ -128,21 +128,21 @@ ns_tanh = 3:2:(2*length(errs_tanh)+1)
 ##############
 # Figure 2.a #
 ##############
-N = 3
+N = 1
 ρ = CPWLisation.Tanh{T}()
 # ρ = ReLU(T(0.1))
 xmax = 5
 
-if (N > 1) && (Nmax >= N)
+if Nmax >= N
   free = ξs_tanh[N]
   all_free = [-reverse(free)..., free...]
-  xmax = max(all_free[end] + 1, xmax)
+  xmax = !isempty(all_free) ? max(all_free[end] + 1, xmax) : xmax
   xmin = -xmax
   abscissa = [-reverse(free)..., free...]
   if ρ isa CPWLisation.Tanh
     name = L"\operatorname{\tanh}"
     fixed = T[xmin, 0, xmax]
-    pushfirst!(abscissa, T(Inf))
+    pushfirst!(abscissa, -T(Inf))
     insert!(abscissa, searchsortedfirst(abscissa, T(0)), T(0))
     push!(abscissa, T(Inf))
   else
@@ -154,7 +154,7 @@ if (N > 1) && (Nmax >= N)
 
   # ρ
   xs = xmin:0.01:xmax
-  plot(xs, ρ.(xs), label=name)
+  plot(xs, ρ.(xs), lw=2, ls=:dot, label=name)
 
   # π[ρ]
   a₀, b₀ = ϕ₋(ρ)
@@ -163,7 +163,7 @@ if (N > 1) && (Nmax >= N)
   x₋ = xmin
   x₊ = (b₊ - b₀) / (a₀ - a₊)
   xs = x₋:0.01:x₊
-  plot!(xs, a₀ .* xs .+ b₀, color=2, label="")
+  plot!(xs, a₀ .* xs .+ b₀, color=2, lw=2, label="")
 
   for n in 2:length(abscissa)-1
     ξ₋ = abscissa[n-1]
@@ -186,8 +186,7 @@ if (N > 1) && (Nmax >= N)
     x₋ = max((b₀ - b₋) / (a₋ - a₀), xmin)
     x₊ = min((b₊ - b₀) / (a₀ - a₊), xmax)
     xs = x₋:0.01:x₊
-    println(x₋)
-    plot!(xs, a₀ .* xs .+ b₀, color=2, label="")
+    plot!(xs, a₀ .* xs .+ b₀, color=2, lw=2, label="")
   end
 
   ξ₋ = abscissa[end-1]
@@ -196,21 +195,21 @@ if (N > 1) && (Nmax >= N)
   x₋ = (b₀ - b₋) / (a₋ - a₀)
   x₊ = xmax
   xs = x₋:0.01:x₊
-  plot!(xs, a₀ .* xs .+ b₀, color=2, label="")
+  plot!(xs, a₀ .* xs .+ b₀, color=2, lw=2, label="")
 
   if ρ isa CPWLisation.Tanh
     n = 2 * (N - 1) + 3
   else
     n = 2 * (N - 1) + 2
   end
-  plot!(T[], T[], color=2, label=L"\pi_{%$(n)}(" * name * L")")
+  plot!(T[], T[], color=2, lw=2, label=L"\pi_{%$(n)}(" * name * L")")
 
   # abscissa
   scatter!(all_free, ρ.(all_free), markercolor=3, markershape=:circle, label="free")
   scatter!(fixed, ρ.(fixed), markercolor=4, markershape=:rect, label="fixed")
   plot!(legend=:topleft, legendfontsize=10)
 
-  plot_path = joinpath("results", "figures", "fig2a.pdf")
+  plot_path = joinpath("results", "figures", "fig2a_$(N).pdf")
   mkpath(dirname(plot_path))
   savefig(plot_path)
 end

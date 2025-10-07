@@ -95,7 +95,7 @@ for (l, α) in (("a", 0.0f0), ("b", 0.25f0))
     end
   end
   Plots.plot!(legend=false)
-  plot_path = joinpath("results", "figures", "fig10$(l).pdf")
+  plot_path = joinpath("results", "figures", "fig10$(l).svg")
   mkpath(dirname(plot_path))
   Plots.savefig(plot_path)
 end

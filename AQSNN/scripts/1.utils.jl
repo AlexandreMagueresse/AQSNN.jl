@@ -24,8 +24,8 @@ SV2 = SVector{2,Float32}
 # Activations #
 ###############
 ρs = Dict(
-  "ReLUε" => Absε(1.0f-1),
-  "tanh" => Tanh(),
+  "ReLUε" => AQSNN.Absε(1.0f-1),
+  "tanh" => AQSNN.Tanh(),
 )
 
 #################

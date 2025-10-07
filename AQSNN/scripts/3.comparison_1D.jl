@@ -57,13 +57,13 @@ function comparison1d(name, mode, problem, Ωname, Fname, ρname, A, η, ν, NE,
     if mode == "l2"
       X = [x for (x, y) in dict[:histL2]]
       Y = [y for (x, y) in dict[:histL2]]
-      Plots.plot!(X, Y, yscale=:log10, label="MC ($NΩ)")
+      Plots.plot!(X, Y, yscale=:log10, lw=2, label="MC ($NΩ)")
     elseif mode == "abs"
       U = u(X)
-      Plots.plot!(X[1, :], abs.(U[1, :] .- F[1, :]), label="MC ($NΩ)")
+      Plots.plot!(X[1, :], abs.(U[1, :] .- F[1, :]), lw=2, label="MC ($NΩ)")
     elseif mode == "rel"
       U = u(X)
-      Plots.plot!(X[1, :], U[1, :], label="MC ($NΩ)")
+      Plots.plot!(X[1, :], U[1, :], lw=2, label="MC ($NΩ)")
     end
   end
 
@@ -79,13 +79,13 @@ function comparison1d(name, mode, problem, Ωname, Fname, ρname, A, η, ν, NE,
     if mode == "l2"
       X = [x for (x, y) in dict[:histL2]]
       Y = [y for (x, y) in dict[:histL2]]
-      Plots.plot!(X, Y, yscale=:log10, label="AQ ($NΩ, $P, $O)")
+      Plots.plot!(X, Y, yscale=:log10, lw=2, label="AQ ($NΩ, $P, $O)")
     elseif mode == "abs"
       U = u(X)
-      Plots.plot!(X[1, :], abs.(U[1, :] .- F[1, :]), label="AQ ($NΩ, $P, $O)")
+      Plots.plot!(X[1, :], abs.(U[1, :] .- F[1, :]), lw=2, label="AQ ($NΩ, $P, $O)")
     elseif mode == "rel"
       U = u(X)
-      Plots.plot!(X[1, :], U[1, :], label="AQ ($NΩ, $P, $O)")
+      Plots.plot!(X[1, :], U[1, :], lw=2, label="AQ ($NΩ, $P, $O)")
     end
   end
 
@@ -96,7 +96,7 @@ function comparison1d(name, mode, problem, Ωname, Fname, ρname, A, η, ν, NE,
     Plots.plot!(xlabel="X", ylabel=L"\|u - \hat{u}\,\|")
     Plots.plot!(legend=:topright)
   elseif mode == "rel"
-    Plots.plot!(X[1, :], F[1, :], label="true")
+    Plots.plot!(X[1, :], F[1, :], lw=2, ls=:dot, label="exact")
     Plots.plot!(xlabel="X", ylabel=L"u")
     Plots.plot!(legend=:topright)
   end
